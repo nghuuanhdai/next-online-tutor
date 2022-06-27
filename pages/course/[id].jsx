@@ -4,13 +4,19 @@ import Header from "../../components/header"
 import Image from 'next/image'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {faPen , faImage} from "@fortawesome/free-solid-svg-icons"
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import CourseChapter from "../../components/course-chapter"
 import { useUserProfile } from "../../utils/firebaseClient"
-
+import dbConnect from '../../utils/dbConnect'
+import Course from "../../models/course"
+import { defaultCourseBanner } from "../../utils/constant"
+import useSWR , { mutate } from "swr";
 
 export async function getServerSideProps(context){
   const _id = context.query.id
+  await dbConnect()
+  const course = await Course.findById(_id)
+
   const dummyCourse = {
     _id: _id,
     title: `Course ${_id} Title`,
@@ -23,18 +29,54 @@ export async function getServerSideProps(context){
     ]
   }
   return {
-    props : {course: dummyCourse}
+    props : {course: {
+      _id: course?._id.toString()??_id,
+      title: course?.title??'Unknown',
+      bannerUrl: course?.thumbnailUrl??defaultCourseBanner,
+      lectures: course?.lectures??[],
+      chapters: course?.chapters??[]
+    }}
   }
 }
 
-export default function Course({ course }) {
+export default function CoursePage({ course }) {
+  const courseInfoKey = `/api/course-info/${course._id}`
+  async function infoFetcher(){
+    const res = await fetch(courseInfoKey, {method: 'GET'})
+    return await res.json()
+  }
+
+  const {data: courseInfo, err} = useSWR(courseInfoKey, infoFetcher, {fallbackData: course})
+  if(courseInfo && !err)
+  {
+    courseInfo.lectures = course.lectures
+    courseInfo.chapters = course.chapters
+    course = courseInfo
+  }
+
   const isAdmin = useUserProfile()?.admin;
   const [editTitle, setEditTitle] = useState(false)
   const titleInput = useRef(null)
   const [title, setTitle] = useState(course.title)
+  const [bannerUrl, setBannerUrl] = useState(course.bannerUrl) 
+  useEffect(()=>{setTitle(course.title)}, [course])
+  useEffect(()=>{setBannerUrl(course.bannerUrl)}, [course])
 
   async function editCourseTitle(evt) {
     setEditTitle(!editTitle)
+    if (title != course.title)
+    {
+      const res = await fetch(courseInfoKey, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({title: title})
+      })
+      const newCourseInfo = await res.json()
+      setTitle(newCourseInfo.title)
+      mutate(courseInfoKey, newCourseInfo, false)
+    }
   }
 
   async function editThumbnail(evt) {
@@ -47,7 +89,7 @@ export default function Course({ course }) {
     <Header></Header>
     <main className="container mx-auto px-2 mb-5">
       <div className="relative rounded-b-xl overflow-hidden">
-        <Image src={course.bannerUrl} alt={title} width='320' layout='responsive' height='180' objectFit='cover'></Image>
+        <Image src={bannerUrl} alt={title} width='320' layout='responsive' height='180' objectFit='cover'></Image>
         {
           isAdmin
           ?<div className="flex-none absolute bot-0 right-0 -translate-y-full">

@@ -86,10 +86,10 @@ export default function CourseChapter({ chapter, isAdmin })
           </button>
           :<></>  
       }
-      <button className={isAdmin?"rounded-r bg-blue-100 p-2 m-l-px w-full flex flex-row":"rounded bg-blue-100 p-2 m-l-px w-full flex flex-row"} onClick={(evt)=>setExpand(!expand)}>
+      <button className={isAdmin?"rounded-r bg-blue-100 p-2 m-l-px w-full flex flex-row":"rounded bg-blue-100 p-2 m-l-px w-full flex flex-row"} onClick={(evt)=> {if(!titleEdit)setExpand(!expand)}}>
         {
           titleEdit
-          ?<input onClick={(evt => evt.preventDefault())} onChange={(evt)=>setTitle(evt.target.value)} className="rounded outline-0 bg-blue-600 flex-auto text-white text-left font-bold" ref={titleInput} value={title}></input>
+          ?<input onClick={(evt => evt.preventDefault())} onChange={(evt)=>setTitle(evt.target.value)} className="rounded outline-0 bg-blue-300 flex-auto text-slate-700 text-left font-bold" ref={titleInput} value={title}></input>
           :<h2 className="flex-auto text-slate-700 text-left font-bold">{title}</h2>
         }
         

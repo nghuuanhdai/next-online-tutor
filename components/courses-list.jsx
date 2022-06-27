@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+import { useUserProfile } from "../utils/firebaseClient";
 import CourseCard from "./course-card";
 import NewCourseCardButton from "./new-course-card";
-import { mutate } from "swr";
 
 export default function CoursesList({ courses, title, adminOption = false }) {  
   const [coursesVal, setCoursesVal] = useState([])
   useEffect(()=>setCoursesVal(courses), [courses])
+  const isAdmin = useUserProfile()?.admin
   
   async function createNewCourse(evt) {
     console.log('create new course')
@@ -31,7 +32,7 @@ export default function CoursesList({ courses, title, adminOption = false }) {
           coursesVal.map(course => (<CourseCard key={course._id} course={course} adminOption={adminOption} onCourseDelete={deleteCourse(course)}></CourseCard>))
         }
         {
-          adminOption
+          isAdmin && adminOption
           ?<NewCourseCardButton onClick={createNewCourse}></NewCourseCardButton>
           :<></>
         }
