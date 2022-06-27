@@ -7,5 +7,10 @@ var CourseChapterSchema = new Schema({
   lectures: [{type: Schema.Types.ObjectId, ref: 'Lecture', autopopulate: true}]
 })
 CourseChapterSchema.plugin(require('mongoose-autopopulate'));
-const CourseChapter = mongoose.model('CourseChapter') || mongoose.model('CourseChapter', CourseChapterSchema)
+let CourseChapter
+try{
+  CourseChapter = mongoose.model('CourseChapter')
+}catch{
+  CourseChapter = mongoose.model('CourseChapter', CourseChapterSchema)
+}
 module.exports = CourseChapter

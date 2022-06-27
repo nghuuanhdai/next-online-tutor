@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import CourseCard from "./course-card";
 import NewCourseCardButton from "./new-course-card";
+import { mutate } from "swr";
 
-export default function CoursesList({ courses, title, adminOption = false }) {
+export default function CoursesList({ courses, title, adminOption = false }) {  
   const [coursesVal, setCoursesVal] = useState([])
   useEffect(()=>setCoursesVal(courses), [courses])
   

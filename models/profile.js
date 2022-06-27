@@ -8,5 +8,10 @@ var ProfileSchema = new Schema({
 });
 ProfileSchema.plugin(require('mongoose-autopopulate'));
 
-const Profile = mongoose.model('Profile') || mongoose.model('Profile', ProfileSchema)
+let Profile
+try{
+  Profile = mongoose.model('Profile')
+}catch{
+  Profile = mongoose.model('Profile', ProfileSchema)
+}
 module.exports = Profile

@@ -8,5 +8,10 @@ var LectureSchema = new Schema({
   videoId: String
 });
 
-const Lecture = mongoose.model('Lecture') || mongoose.model('Lecture', LectureSchema)
+let Lecture
+try{
+  Lecture = mongoose.model('Lecture')
+}catch{
+  Lecture = mongoose.model('Lecture', LectureSchema)
+}
 module.exports = Lecture

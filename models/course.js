@@ -10,5 +10,10 @@ var CourseSchema = new Schema({
 });
 CourseSchema.plugin(require('mongoose-autopopulate'));
 
-const Course =  mongoose.model('Course') || mongoose.model('Course', CourseSchema)
+let Course
+try{
+  Course = mongoose.model('Course')
+}catch{
+  Course = mongoose.model('Course', CourseSchema)
+}
 module.exports = Course

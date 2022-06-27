@@ -1,0 +1,1 @@
+export const defaultCourseBanner = 'https://ugc.futurelearn.com/uploads/images/17/a5/header_17a5cd13-9059-46d3-a48e-23b21df7e947.jpg'

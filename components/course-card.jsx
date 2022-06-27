@@ -2,10 +2,19 @@ import Image from "next/image"
 import Link from "next/link"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faPen, faImage } from "@fortawesome/free-solid-svg-icons";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useUserProfile } from "../utils/firebaseClient";
+import useSWR , { mutate } from "swr";
 
 export default function CourseCard({ course, adminOption = false, onCourseDelete = ()=>{}}){
+  const courseInfoKey = `/api/course-info/${course._id}`
+  async function fetcher(){
+    const res = await fetch(courseInfoKey, {method: 'GET'})
+    return await res.json()
+  }
+  const {data, error } = useSWR (courseInfoKey, fetcher, { fallbackData: course })
+  if(!error)
+    course = data
   const isAdmin = useUserProfile()?.admin;
 
   async function deleteCourse(evt) {
@@ -16,13 +25,20 @@ export default function CourseCard({ course, adminOption = false, onCourseDelete
   }
 
   async function editCourseTitle(evt) {
-    evt.preventDefault()
-    console.log(`edit course title`)
+    evt.preventDefault()    
     setTitleEdit(!titleEdit)
     if (title != course.title)
     {
-      setUpdating(prevCount => prevCount + 1)
-      setTimeout(()=> setUpdating(prevCount => prevCount - 1), 1000 )
+      const res = await fetch(courseInfoKey, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({title: title})
+      })
+      const newCourseInfo = await res.json()
+      setTitle(newCourseInfo.title)
+      mutate(courseInfoKey, newCourseInfo, false)
     }
   }
 
@@ -30,11 +46,15 @@ export default function CourseCard({ course, adminOption = false, onCourseDelete
     evt.preventDefault()
     console.log(`edit course thumbnail`)
   }
+
   const [updating, setUpdating] = useState(0)
   const [bannerUrl, setBannerUrl] = useState(course.bannerUrl)
   const [title, setTitle] = useState(course.title)
   const [titleEdit, setTitleEdit] = useState(false)
   const titleInput = useRef(null)
+  useEffect(()=>{setTitle(course.title)}, [course])
+  useEffect(()=>{setBannerUrl(course.bannerUrl)}, [course])
+
   return (
     <div className="rounded-xl relative bg-white m-2 hover:drop-shadow-xl hover:scale-105 transition-all hover:z-10">
       <Link href={`/course/${course._id}`}>

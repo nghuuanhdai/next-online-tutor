@@ -4,15 +4,28 @@ import CoursesList from "../components/courses-list"
 import Divider from "../components/divider"
 import Footer from "../components/footer"
 import Header from "../components/header"
+import dbConnect from "../utils/dbConnect"
+import Course from "../models/course"
+import { useUserProfile } from "../utils/firebaseClient"
+import { defaultCourseBanner } from "../utils/constant"
 
 export default function Home({myCourses, courses}) {
+  const profile = useUserProfile()
+  myCourses = profile?.courses.map(course => ({_id: course._id.toString(), title: course.title, bannerUrl: course.thumbnailUrl??defaultCourseBanner}))??[]
+
   return (
     <>
       <MyHead></MyHead>
       <Header></Header>
       <div className="container mx-auto p-2">
-        <CoursesList courses={myCourses} title='MY COURSES'></CoursesList>
-        <Divider></Divider>
+        {
+          profile
+          ?<>
+            <CoursesList courses={myCourses} title='MY COURSES'></CoursesList>
+            <Divider></Divider>
+          </>
+          :<></>
+        }
         <CoursesList courses={courses} title='RECOMMENDED COURSES' adminOption={true}></CoursesList>
       </div>
       <Footer></Footer>
@@ -21,15 +34,10 @@ export default function Home({myCourses, courses}) {
 }
 
 export async function getServerSideProps(contex) {
-  const dummyCourses = []
-    for (let i = 0; i < 10; i++) {
-      dummyCourses.push({
-        _id: i.toString(),
-        title: `Course ${i} Title`,
-        bannerUrl: 'https://ugc.futurelearn.com/uploads/images/17/a5/header_17a5cd13-9059-46d3-a48e-23b21df7e947.jpg'
-      })
-    }
+  await dbConnect()
+  let courses = await Course.find()
+  courses = courses.map(course => ({_id: course._id.toString(), title: course.title, bannerUrl: course.thumbnailUrl??defaultCourseBanner}))
   return {
-    props: {myCourses: dummyCourses, courses: dummyCourses}
+    props: {myCourses: [], courses: courses}
   }
 }
