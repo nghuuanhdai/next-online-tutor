@@ -10,16 +10,20 @@ export default function CoursesList({ courses, title, adminOption = false }) {
   
   async function createNewCourse(evt) {
     console.log('create new course')
-    setCoursesVal([...coursesVal, {
-      _id: (parseInt(coursesVal[coursesVal.length -1]._id) + 1).toString(),
-      title: 'Course Title',
-      bannerUrl: 'https://ugc.futurelearn.com/uploads/images/17/a5/header_17a5cd13-9059-46d3-a48e-23b21df7e947.jpg'
-    }])
+    const res = await fetch('/api/course-info', {
+      method: 'POST'
+    })
+    const newCourse = await res.json()
+    setCoursesVal([...coursesVal, newCourse])
   }
 
   function deleteCourse(delCourse) {
-    return ()=>{
+    return async ()=>{
       setCoursesVal(coursesVal.filter(course => course._id != delCourse._id))
+      const res = await fetch(`/api/course-info/${delCourse._id}`, {method: 'DELETE'})
+      if(res.status != 201) {
+        setCoursesVal(coursesVal)
+      }
     }
   }
   

@@ -5,6 +5,7 @@ import { faXmark, faPen, faImage } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
 import { useUserProfile } from "../utils/firebaseClient";
 import useSWR , { mutate } from "swr";
+import { useCloudinary } from "../utils/cloudinary-ctx";
 
 export default function CourseCard({ course, adminOption = false, onCourseDelete = ()=>{}}){
   const courseInfoKey = `/api/course-info/${course._id}`
@@ -19,9 +20,8 @@ export default function CourseCard({ course, adminOption = false, onCourseDelete
 
   async function deleteCourse(evt) {
     evt.preventDefault()
-    console.log(`delete course ${course._id}`)
     setUpdating(prevCount => prevCount + 1)
-    setTimeout(()=> {setUpdating(prevCount => prevCount - 1); onCourseDelete();}, 1000 )
+    onCourseDelete();
   }
 
   async function editCourseTitle(evt) {
@@ -34,17 +34,30 @@ export default function CourseCard({ course, adminOption = false, onCourseDelete
         headers: {
           'Content-type': 'application/json'
         },
-        body: JSON.stringify({title: title})
+        body: JSON.stringify({title: title, bannerUrl: bannerUrl})
       })
       const newCourseInfo = await res.json()
       setTitle(newCourseInfo.title)
       mutate(courseInfoKey, newCourseInfo, false)
     }
   }
-
+  const {uploadWidget: cloudinaryUploadWidget, callbackFn: cloudinaryCallback} = useCloudinary()
   async function editCourseThumbnail(evt) {
     evt.preventDefault()
-    console.log(`edit course thumbnail`)
+    cloudinaryCallback.current = async (error, result) =>{
+      if(error) return console.error(error)
+      const res = await fetch(courseInfoKey, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({title: title, bannerUrl: result.info.url})
+      })
+      const newCourseInfo = await res.json()
+      setBannerUrl(newCourseInfo.bannerUrl)
+      mutate(courseInfoKey, newCourseInfo, false)
+    }
+    cloudinaryUploadWidget.open()
   }
 
   const [updating, setUpdating] = useState(0)

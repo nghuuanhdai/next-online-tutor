@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import MyHead from "../components/head"
 import CoursesList from "../components/courses-list"
 import Divider from "../components/divider"
@@ -36,7 +36,7 @@ export default function Home({myCourses, courses}) {
 export async function getServerSideProps(contex) {
   await dbConnect()
   let courses = await Course.find()
-  courses = courses.map(course => ({_id: course._id.toString(), title: course.title, bannerUrl: course.thumbnailUrl??defaultCourseBanner}))
+  courses = courses.map(course => ({_id: course._id.toString(), title: course.title??'course title', bannerUrl: course.thumbnailUrl??defaultCourseBanner}))
   return {
     props: {myCourses: [], courses: courses}
   }
