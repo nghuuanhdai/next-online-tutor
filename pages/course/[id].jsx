@@ -11,6 +11,7 @@ import dbConnect from '../../utils/dbConnect'
 import Course from "../../models/course"
 import { defaultCourseBanner } from "../../utils/constant"
 import useSWR , { mutate } from "swr";
+import { useCloudinary } from "../../utils/cloudinary-ctx"
 
 export async function getServerSideProps(context){
   const _id = context.query.id
@@ -71,16 +72,30 @@ export default function CoursePage({ course }) {
         headers: {
           'Content-type': 'application/json'
         },
-        body: JSON.stringify({title: title})
+        body: JSON.stringify({title: title, bannerUrl: bannerUrl})
       })
       const newCourseInfo = await res.json()
       setTitle(newCourseInfo.title)
       mutate(courseInfoKey, newCourseInfo, false)
     }
   }
-
+  const {uploadWidget: cloudinaryUploadWidget, callbackFn: cloudinaryCallback} = useCloudinary()
   async function editThumbnail(evt) {
-    
+    evt.preventDefault()
+    cloudinaryCallback.current = async (error, result) =>{
+      if(error) return console.error(error)
+      const res = await fetch(courseInfoKey, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({title: title, bannerUrl: result.info.url})
+      })
+      const newCourseInfo = await res.json()
+      setBannerUrl(newCourseInfo.bannerUrl)
+      mutate(courseInfoKey, newCourseInfo, false)
+    }
+    cloudinaryUploadWidget.open()
   }
 
   return (
