@@ -77,7 +77,7 @@ function LectureEntry({lecture, isAdmin, onDelete = (lecture)=>{}}) {
   )
 }
 
-export default function CourseChapter({ chapter, isAdmin, courseId=null, onChapterDelete=(chapter)=>{} })
+export default function CourseChapter({ chapter, isAdmin, courseId, isRoot=false, onChapterDelete=(chapter)=>{} })
 {
   const [titleEdit, setTitleEdit] = useState(false)
   const [expand, setExpand] = useState(false)
@@ -175,7 +175,7 @@ export default function CourseChapter({ chapter, isAdmin, courseId=null, onChapt
   return (
     <>
     {
-      !courseId
+      !isRoot
       ?<div className="flex flex-row m-px">
       {
         isAdmin
@@ -212,11 +212,11 @@ export default function CourseChapter({ chapter, isAdmin, courseId=null, onChapt
     <AnimateHeight
       id={chapter._id??'root-chapter'}
       duration={500}
-      height={(expand || courseId)?'auto':0}
+      height={(expand || isRoot)?'auto':0}
       className=""
     >
       <div className="pb-2">
-        <div className= {courseId?"":"ml-5"}>
+        <div className= {isRoot?"":"ml-5"}>
           <ul className="flex flex-col mb-2 border-l-2 border-slate-200">
           {
             lectures.map(lecture => <li key={lecture._id} className='flex-auto flex flex-row items-center'>
@@ -237,7 +237,7 @@ export default function CourseChapter({ chapter, isAdmin, courseId=null, onChapt
           <ul className="flex flex-col">
             {
               chapters.map(chapter => <li key={chapter._id} className='flex-auto'>
-                <CourseChapter chapter={chapter} isAdmin={isAdmin} onChapterDelete={onSubChapterDelete}></CourseChapter>
+                <CourseChapter chapter={chapter} isAdmin={isAdmin} courseId={courseId} onChapterDelete={onSubChapterDelete}></CourseChapter>
               </li>)
             }
             {

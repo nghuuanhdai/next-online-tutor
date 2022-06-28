@@ -23,6 +23,7 @@ export default async function handler(req, res){
 
     const newLecture = new Lecture()
     newLecture.title = 'untitled'
+    newLecture.courseId = req.body.parentCourseId
     await newLecture.save()
     await CourseChapter.findByIdAndUpdate(parentChapterId, { $push: { lectures: newLecture._id } })
     return res.json(newLecture)

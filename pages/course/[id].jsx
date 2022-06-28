@@ -156,7 +156,7 @@ export default function CoursePage({ course }) {
       </div>
       <Description description={course.description} onDescriptionChanged={onDescriptionChanged}></Description>
       <h2 className="flex-auto text-blue-500 font-bold text-2xl">Lectures</h2>
-      <CourseChapter chapter={course.chapter} courseId={course._id} isAdmin={isAdmin}></CourseChapter>
+      <CourseChapter chapter={course.chapter} courseId={course._id} isAdmin={isAdmin} isRoot={true}></CourseChapter>
     </main>
     <Footer></Footer>
     </>

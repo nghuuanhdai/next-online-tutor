@@ -15,7 +15,12 @@ export default async function handler(req, res){
   }
   if(req.method==='PUT')
   {
-    const updatedChapter = await CourseChapter.findByIdAndUpdate(req.query.id, {$set: { title: req.body.title }}, {new: true})
+    const updateDoc = {}
+    if(req.body.title)
+      updateDoc.title = req.body.title
+    if(req.body.description)
+      updateDoc.description = req.body.description
+    const updatedChapter = await CourseChapter.findByIdAndUpdate(req.query.id, {$set: updateDoc}, {new: true})
     return res.json(serializeChapter(updatedChapter))
   }
   res.status(404).end()

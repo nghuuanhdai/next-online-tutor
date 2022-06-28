@@ -14,7 +14,7 @@ export default function Description({description, onDescriptionChanged})
   try {
     deltaInit = JSON.parse(description)
   } catch (error) {
-    console.error(error)
+    //console.error(error)
   }
   const [delta, setDelta] = useState(deltaInit)
 
