@@ -12,28 +12,18 @@ import Course from "../../models/course"
 import { defaultCourseBanner } from "../../utils/constant"
 import useSWR , { mutate } from "swr";
 import { useCloudinary } from "../../utils/cloudinary-ctx"
+import Description from "../../components/description"
 
 export async function getServerSideProps(context){
   const _id = context.query.id
   await dbConnect()
   const course = await Course.findById(_id)
-
-  const dummyCourse = {
-    _id: _id,
-    title: `Course ${_id} Title`,
-    bannerUrl: 'https://ugc.futurelearn.com/uploads/images/17/a5/header_17a5cd13-9059-46d3-a48e-23b21df7e947.jpg',
-    lectures: [],
-    chapters: [
-      { _id: '1', title: 'chapter 1', lectures: [{_id: '1', title: 'Lecture 1'}, {_id: '2', title: 'Lecture 2'}], chapters: [] },
-      { _id: '2', title: 'chapter 2', lectures: [{_id: '1', title: 'Lecture 1'}, {_id: '2', title: 'Lecture 2'}], chapters: [] },
-      { _id: '3', title: 'chapter 3', lectures: [{_id: '1', title: 'Lecture 1'}, {_id: '2', title: 'Lecture 2'}], chapters: [] }
-    ]
-  }
   return {
     props : {course: {
       _id: course?._id.toString()??_id,
       title: course?.title??'Unknown',
       bannerUrl: course?.thumbnailUrl??defaultCourseBanner,
+      description: course?.description??'',
       lectures: course?.lectures??[],
       chapters: course?.chapters??[]
     }}
@@ -41,18 +31,46 @@ export async function getServerSideProps(context){
 }
 
 export default function CoursePage({ course }) {
+  const courseKey = `/api/course/${course._id}`
+  async function courseFetcher() {
+    const res = await fetch(courseKey, {method: 'GET'})
+    return await res.json()
+  }
+
+  const {data: courseDetail, courseDetailErr} = useSWR(courseKey, courseFetcher, {fallbackData: course, revalidateOnMount: false})
+  if(courseDetail && !courseDetailErr)
+  {
+    course = courseDetail  
+  }
+  
   const courseInfoKey = `/api/course-info/${course._id}`
   async function infoFetcher(){
     const res = await fetch(courseInfoKey, {method: 'GET'})
     return await res.json()
   }
 
-  const {data: courseInfo, err} = useSWR(courseInfoKey, infoFetcher, {fallbackData: course})
-  if(courseInfo && !err)
+  const {data: courseInfo, courseInfoErr} = useSWR(courseInfoKey, infoFetcher, {fallbackData: course, revalidateOnMount: false})
+  if(courseInfo && !courseInfoErr)
   {
     courseInfo.lectures = course.lectures
     courseInfo.chapters = course.chapters
+    courseInfo.description = course.description
     course = courseInfo
+  }
+
+  function onDescriptionChanged(newDescription) {
+    fetch(courseKey, {
+      method: 'PUT',
+      headers: {
+        'Content-type':'application/json'
+      },
+      body: JSON.stringify({
+        description: newDescription
+      })
+    }).then(res => res.json())
+    .then(resCourse => {
+      mutate(courseKey, resCourse)
+    }) 
   }
 
   const isAdmin = useUserProfile()?.admin;
@@ -137,6 +155,8 @@ export default function CoursePage({ course }) {
           :<></>
         }
       </div>
+      <Description description={course.description} onDescriptionChanged={onDescriptionChanged}></Description>
+      <h2 className="flex-auto text-blue-500 font-bold text-2xl">Lectures</h2>
       <CourseChapter chapter={{rootChapter: true, chapters: course.chapters, lectures: course.lectures}} isAdmin={isAdmin}></CourseChapter>
     </main>
     <Footer></Footer>
