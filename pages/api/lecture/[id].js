@@ -1,6 +1,7 @@
 import Lecture from "../../../models/lecture"
 import { loginCheck } from "../../../utils/firebaseAdmin"
 import Profile from "../../../models/profile"
+import dbConnect from "../../../utils/dbConnect"
 
 export default async function handler(req, res){
   try {

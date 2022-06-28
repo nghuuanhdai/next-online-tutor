@@ -2,6 +2,7 @@ import Course from "../../../models/course"
 import { defaultCourseBanner } from "../../../utils/constant"
 import { loginCheck } from "../../../utils/firebaseAdmin";
 import Profile from "../../../models/profile";
+import dbConnect from "../../../utils/dbConnect"
 
 export default async function handler(req, res)
 {

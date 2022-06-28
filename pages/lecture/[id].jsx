@@ -40,12 +40,12 @@ export async function getServerSideProps(context){
       props: {}
     }
 
-  return {
+    return {
     props: {lecture: {
       _id: lecture._id.toString(),
       title: lecture.title??'untitled',
       description: lecture.description??'',
-      videoId: lecture.videoUrl??null,
+      videoId: lecture.videoId??null,
       courseId: lecture.courseId?._id.toString()??null,
       courseTitle: lecture.courseId?.title??'untitled'
     }}
@@ -115,9 +115,11 @@ export default function LecturePage({ lecture }){
       </button>
       :<></>}
     </h1>
-    <div className="video-section">
-
-    </div>
+    {lecture.videoId
+      ?<div className="w-full">
+        <div className="pt-[56.25%] h-0 relative"><iframe className="w-full h-full absolute top-0 left-0" src={`https://player.vimeo.com/video/${lecture.videoId}`} res={1} frameBorder="0" responsive={1} webkitallowfullscreen={1} mozallowfullscreen={1} allowFullScreen={1}></iframe></div>
+      </div>
+      :<></>}
     <Description description={lecture.description} onDescriptionChanged={onDescriptionChanged}/>
     </main>
     <Footer />

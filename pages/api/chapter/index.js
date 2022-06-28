@@ -2,6 +2,7 @@ import CourseChapter from "../../../models/course-chapter"
 import Course from "../../../models/course"
 import { loginCheck } from "../../../utils/firebaseAdmin"
 import Profile from "../../../models/profile"
+import dbConnect from "../../../utils/dbConnect"
 
 export default async function handler(req, res){
   try {
@@ -19,9 +20,9 @@ export default async function handler(req, res){
     if(req.body.parentCourseId && !parentChapterId)
     {
       const newRootChapter = new CourseChapter()
-      newChapter.title = 'untitled'
-      await newChapter.save()
-      await Course.findByIdAndUpdate(req.body.parentCourseId, {$set: {chapter: newChapter._id}})
+      newRootChapter.title = 'untitled'
+      await newRootChapter.save()
+      await Course.findByIdAndUpdate(req.body.parentCourseId, {$set: {chapter: newRootChapter._id}})
       parentChapterId = newRootChapter._id
     }
 

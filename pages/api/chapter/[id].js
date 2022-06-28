@@ -2,6 +2,7 @@ import CourseChapter from "../../../models/course-chapter"
 import { loginCheck } from "../../../utils/firebaseAdmin"
 import { serializeChapter } from "../course/utils"
 import Profile from "../../../models/profile"
+import dbConnect from "../../../utils/dbConnect"
 
 export default async function handler(req, res){
   try {
