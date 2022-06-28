@@ -13,6 +13,7 @@ import { defaultCourseBanner } from "../../utils/constant"
 import useSWR , { mutate } from "swr";
 import { useCloudinary } from "../../utils/cloudinary-ctx"
 import Description from "../../components/description"
+import {serializeChapter} from '../api/course/utils'
 
 export async function getServerSideProps(context){
   const _id = context.query.id
@@ -24,8 +25,7 @@ export async function getServerSideProps(context){
       title: course?.title??'Unknown',
       bannerUrl: course?.thumbnailUrl??defaultCourseBanner,
       description: course?.description??'',
-      lectures: course?.lectures??[],
-      chapters: course?.chapters??[]
+      chapter: serializeChapter(course?.chapter)
     }}
   }
 }
@@ -52,8 +52,7 @@ export default function CoursePage({ course }) {
   const {data: courseInfo, courseInfoErr} = useSWR(courseInfoKey, infoFetcher, {fallbackData: course, revalidateOnMount: false})
   if(courseInfo && !courseInfoErr)
   {
-    courseInfo.lectures = course.lectures
-    courseInfo.chapters = course.chapters
+    courseInfo.chapter = course.chapter
     courseInfo.description = course.description
     course = courseInfo
   }
@@ -157,7 +156,7 @@ export default function CoursePage({ course }) {
       </div>
       <Description description={course.description} onDescriptionChanged={onDescriptionChanged}></Description>
       <h2 className="flex-auto text-blue-500 font-bold text-2xl">Lectures</h2>
-      <CourseChapter chapter={{rootChapter: true, chapters: course.chapters, lectures: course.lectures}} isAdmin={isAdmin}></CourseChapter>
+      <CourseChapter chapter={course.chapter} courseId={course._id} isAdmin={isAdmin}></CourseChapter>
     </main>
     <Footer></Footer>
     </>

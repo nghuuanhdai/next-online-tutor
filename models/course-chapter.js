@@ -2,7 +2,7 @@ var mongoose = require('mongoose')
 var Schema = mongoose.Schema
 
 var CourseChapterSchema = new Schema({
-  title: String,
+  title: {type: String, default: 'untitled'},
   chapters: [{type: Schema.Types.ObjectId, ref: 'CourseChapter', autopopulate: true}],
   lectures: [{type: Schema.Types.ObjectId, ref: 'Lecture', autopopulate: true}]
 })

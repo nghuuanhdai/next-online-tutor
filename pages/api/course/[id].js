@@ -1,6 +1,7 @@
 import Course from '../../../models/course'
 import { defaultCourseBanner } from '../../../utils/constant'
 import dbConnect from '../../../utils/dbConnect'
+import { serializeChapter } from './utils'
 
 export default async function hanlder(req, res){
   if(req.method==='GET')
@@ -16,8 +17,7 @@ export default async function hanlder(req, res){
       title: course.title??'course title',
       description: course.description??'',
       bannerUrl: course.thumbnailUrl??defaultCourseBanner,
-      chapters: course.chapters,
-      lectures: course.lectures
+      chapter: serializeChapter(course.chapter)
     })
   }
   if(req.method === 'PUT')
@@ -34,8 +34,7 @@ export default async function hanlder(req, res){
       title: course.title??'course title',
       description: course.description??'',
       bannerUrl: course.thumbnailUrl??defaultCourseBanner,
-      chapters: course.chapters,
-      lectures: course.lectures
+      chapter: serializeChapter(course.chapter)
     })
   }
   return res.send(404).end()

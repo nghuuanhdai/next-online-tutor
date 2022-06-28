@@ -16,7 +16,15 @@ function LectureEntry({lecture, isAdmin, onDelete = (lecture)=>{}}) {
   }
   async function deleteLecture(evt){
     evt.preventDefault()
-    onDelete(lecture)
+    fetch(`/api/lecture/${lecture._id}`, {
+      method: 'DELETE',
+    })
+    .then(res => {
+      if(res.status != 201)
+        throw Error('server err')
+      return res
+    })
+    .then(res => onDelete(lecture))
   }
   return (
     <Link href={`/lecture/${lecture._id}`}>
@@ -51,7 +59,7 @@ function LectureEntry({lecture, isAdmin, onDelete = (lecture)=>{}}) {
   )
 }
 
-export default function CourseChapter({ chapter, isAdmin, onChapterDelete=(chapter)=>{} })
+export default function CourseChapter({ chapter, isAdmin, courseId=null, onChapterDelete=(chapter)=>{} })
 {
   const [titleEdit, setTitleEdit] = useState(false)
   const [expand, setExpand] = useState(false)
@@ -65,27 +73,59 @@ export default function CourseChapter({ chapter, isAdmin, onChapterDelete=(chapt
     setTitleEdit(!titleEdit)
   }
 
-  async function addChapter(evt) {
-    const dummyChapter = {
-      _id: uuidv4(),
-      title: 'New Chapter',
-      chapters: [],
-      lectures: []
-    }
-    setChapters([...chapters, dummyChapter])
+  function addChapter(evt) {
+    fetch('/api/chapter', {
+      method: 'POST',
+      headers: {
+        'Content-type':'application/json'
+      },
+      body: JSON.stringify({
+        parentCourseId: courseId,
+        parentChapterId: chapter._id
+      })
+    })
+    .then(res => {
+      if(res.status != 200)
+        throw Error('server err')
+      return res
+    })
+    .then(res => res.json())
+    .then(newChapter => setChapters([...chapters, newChapter]))
+    .catch(err => setChapters(chapters))
   }
 
   async function addLecture(evt) {
-    const dummyLecture = {
-      _id: uuidv4(),
-      title: 'New Lecture'
-    }
-    setLectures([...lectures, dummyLecture])
+    fetch('/api/lecture', {
+      method: 'POST',
+      headers: {
+        'Content-type':'application/json'
+      },
+      body: JSON.stringify({
+        parentCourseId: courseId,
+        parentChapterId: chapter._id
+      })
+    })
+    .then(res => {
+      if(res.status != 200)
+        throw Error('server err')
+      return res
+    })
+    .then(res => res.json())
+    .then(newLecture => setLectures([...lectures, newLecture]))
+    .catch(err => setLectures(lectures))
   }
 
   async function deleteChapter(evt) {
     evt.preventDefault()
-    onChapterDelete(chapter)
+    fetch(`/api/chapter/${chapter._id}`, {
+      method: 'DELETE',
+    })
+    .then(res => {
+      if(res.status != 201)
+        throw Error('server err')
+      return res
+    })
+    .then(res => onChapterDelete(chapter))
   }
 
   function onSubChapterDelete(delChapter) {
@@ -99,7 +139,7 @@ export default function CourseChapter({ chapter, isAdmin, onChapterDelete=(chapt
   return (
     <>
     {
-      !chapter.rootChapter
+      !courseId
       ?<div className="flex flex-row m-px">
       {
         isAdmin
@@ -136,15 +176,15 @@ export default function CourseChapter({ chapter, isAdmin, onChapterDelete=(chapt
     <AnimateHeight
       id={chapter._id??'root-chapter'}
       duration={500}
-      height={(expand || chapter.rootChapter)?'auto':0}
+      height={(expand || courseId)?'auto':0}
       className=""
     >
       <div className="pb-2">
-        <div className= {chapter.rootChapter?"":"ml-5"}>
+        <div className= {courseId?"":"ml-5"}>
           <ul className="flex flex-col mb-2 border-l-2 border-slate-200">
           {
             lectures.map(lecture => <li key={lecture._id} className='flex-auto flex flex-row items-center'>
-              <div className="w-2 h-0.5 bg-slate-200"></div><LectureEntry lecture={lecture} isAdmin={isAdmin}></LectureEntry>
+              <div className="w-2 h-0.5 bg-slate-200"></div><LectureEntry lecture={lecture} isAdmin={isAdmin} onDelete={onSubLectureDelete}></LectureEntry>
             </li>)
           }
           {

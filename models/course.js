@@ -5,8 +5,7 @@ var CourseSchema = new Schema({
     title: String,
     description: String,
     thumbnailUrl: String,
-    chapters: [{type: Schema.Types.ObjectId, ref: 'CourseChapter', autopopulate: true}],
-    lectures: [{type: Schema.Types.ObjectId, ref: 'Lecture', autopopulate: true}]
+    chapter: {type: Schema.Types.ObjectId, ref: 'CourseChapter', autopopulate: true}
 });
 CourseSchema.plugin(require('mongoose-autopopulate'));
 
