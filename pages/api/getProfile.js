@@ -13,7 +13,7 @@ export default async function handler(req, res){
   {
     const email = req.decodedClaims.email
     const profile = await Profile.findOne({email: email})
-    res.json(profile)
+    return res.json(profile)
   }
   res.status(404).end()
 

@@ -10,7 +10,7 @@ export default async function handler(req, res){
     const course = await Course.findById(req.query.id)
     if(!course)
       return res.status(404).end()
-    res.json({_id: course._id.toString(), title: course.title??'course title', bannerUrl: course.thumbnailUrl??defaultCourseBanner})
+    return res.json({_id: course._id.toString(), title: course.title??'course title', bannerUrl: course.thumbnailUrl??defaultCourseBanner})
   }
   try {
     await loginCheck(req, res)
@@ -25,12 +25,12 @@ export default async function handler(req, res){
     course.title = req.body.title
     course.thumbnailUrl = req.body.bannerUrl
     await course.save()
-    res.json({_id: course._id.toString(), title: course.title??'course title', bannerUrl: course.thumbnailUrl??defaultCourseBanner})
+    return res.json({_id: course._id.toString(), title: course.title??'course title', bannerUrl: course.thumbnailUrl??defaultCourseBanner})
   }
   if(req.method === 'DELETE')
   {
     await Course.findByIdAndRemove(req.query.id)
-    res.status(201).end()
+    return res.status(201).end()
   }
   res.status(404).end()
 }

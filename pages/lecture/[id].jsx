@@ -10,6 +10,7 @@ import { faArrowRight, faPen} from "@fortawesome/free-solid-svg-icons"
 import { useState } from "react"
 import { useUserProfile } from "../../utils/firebaseClient"
 import Description from "../../components/description"
+import Profile from "../../models/profile"
 
 export async function getServerSideProps(context){
   try {
@@ -25,11 +26,20 @@ export async function getServerSideProps(context){
     }
   }
 
-  //check valid course
-
-  const _id = context.query.id
   await dbConnect()
+  const profile = await Profile.findOne({email: context.req.decodedClaims.email})
+  const _id = context.query.id
   const lecture = await Lecture.findById(_id)
+
+  if(!profile || (profile.courses.filter(c => c._id.toString() == lecture.courseId?._id.toString()??null).length == 0 && !profile.admin))
+    return {
+      redirect: {
+        permanent: false,
+        destination: '/login'
+      },
+      props: {}
+    }
+
   return {
     props: {lecture: {
       _id: lecture._id.toString(),

@@ -13,7 +13,7 @@ export default async function handler(req, res)
   {
     const newCourse = new Course()
     await newCourse.save()
-    res.json({_id: newCourse._id.toString(), title: newCourse.title??'course title', bannerUrl: newCourse.thumbnailUrl??defaultCourseBanner})
+    return res.json({_id: newCourse._id.toString(), title: newCourse.title??'course title', bannerUrl: newCourse.thumbnailUrl??defaultCourseBanner})
   }
   res.status(404).end()
 }
