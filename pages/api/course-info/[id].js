@@ -1,6 +1,7 @@
 import dbConnect from "../../../utils/dbConnect";
 import Course from "../../../models/course";
 import { defaultCourseBanner } from "../../../utils/constant";
+import { loginCheck } from "../../../utils/firebaseAdmin";
 
 export default async function handler(req, res){
   await dbConnect()
@@ -10,6 +11,11 @@ export default async function handler(req, res){
     if(!course)
       return res.status(404).end()
     res.json({_id: course._id.toString(), title: course.title??'course title', bannerUrl: course.thumbnailUrl??defaultCourseBanner})
+  }
+  try {
+    await loginCheck(req, res)
+  } catch (error) {
+    return res.status(401).send('FORBIDDEN')
   }
   if(req.method === 'POST')
   {

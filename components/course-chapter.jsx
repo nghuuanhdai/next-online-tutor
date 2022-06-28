@@ -13,6 +13,24 @@ function LectureEntry({lecture, isAdmin, onDelete = (lecture)=>{}}) {
   async function editLectureTitle(evt) {
     evt.preventDefault()
     setTitleEdit(!titleEdit)
+    if (title != lecture.title)
+    {
+      fetch(`/api/lecture/${lecture._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-type':'application/json'
+        },
+        body: JSON.stringify({
+          title: title
+        })
+      }).then(res => {
+        if(res.status != 200)
+          throw Error('server error')
+        return res
+      }).then(res => res.json())
+      .then(updated => setTitle(updated.title))
+      .catch(err => setTitle(lecture.title))
+    }
   }
   async function deleteLecture(evt){
     evt.preventDefault()
@@ -71,6 +89,24 @@ export default function CourseChapter({ chapter, isAdmin, courseId=null, onChapt
   async function editChapterTitle(evt) {
     evt.preventDefault()
     setTitleEdit(!titleEdit)
+    if (title != chapter.title)
+    {
+      fetch(`/api/chapter/${chapter._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-type':'application/json'
+        },
+        body: JSON.stringify({
+          title: title
+        })
+      }).then(res => {
+        if(res.status != 200)
+          throw Error('server error')
+        return res
+      }).then(res => res.json())
+      .then(updatedChapter => setTitle(updatedChapter.title))
+      .catch(err => setTitle(chapter.title))
+    }
   }
 
   function addChapter(evt) {
