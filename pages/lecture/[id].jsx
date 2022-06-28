@@ -7,7 +7,7 @@ import Lecture from "../../models/lecture"
 import Link from 'next/link'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowRight, faPen} from "@fortawesome/free-solid-svg-icons"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useUserProfile } from "../../utils/firebaseClient"
 import Description from "../../components/description"
 import Profile from "../../models/profile"
@@ -53,9 +53,12 @@ export async function getServerSideProps(context){
 }
 
 export default function LecturePage({ lecture }){
+  const [videoId, setVideoId] = useState(lecture.videoId)
   const [editTitle, setEditTitle] = useState(false)
   const [title, setTitle] = useState(lecture.title)
   const isAdmin = useUserProfile()?.admin
+  const [file, setFile] = useState('')
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   function onDescriptionChanged(newDescription) {
     fetch(`/api/lecture/${lecture._id}`, {
@@ -93,6 +96,34 @@ export default function LecturePage({ lecture }){
     .catch(err => setTitle(lecture.title))
   }
 
+  function uploadVideo(evt) {
+    evt.preventDefault()
+    var formData = new FormData(evt.target)
+    console.log(formData.values)
+    // post form data
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = 'json';
+
+    // log response
+    xhr.onload = () => {
+      console.log(xhr.response);
+      setUploadProgress(0)
+      if(xhr.response?.videoId)
+        setVideoId(xhr.response.videoId)
+    };
+
+    xhr.upload.onprogress = function(event) {
+      let percent = Math.round(100 * event.loaded / event.total);
+      console.log(`File is ${percent} uploaded.`);
+      setUploadProgress(percent)
+    };
+
+    // create and send the reqeust
+    xhr.open('POST', `/api/video-upload/${lecture._id}`, true);
+
+    xhr.send(formData);
+  }
+
   return (
     <>
     <MyHead />
@@ -115,11 +146,28 @@ export default function LecturePage({ lecture }){
       </button>
       :<></>}
     </h1>
-    {lecture.videoId
+    {videoId
       ?<div className="w-full">
-        <div className="pt-[56.25%] h-0 relative"><iframe className="w-full h-full absolute top-0 left-0" src={`https://player.vimeo.com/video/${lecture.videoId}`} res={1} frameBorder="0" responsive={1} webkitallowfullscreen={1} mozallowfullscreen={1} allowFullScreen={1}></iframe></div>
+        <div className="pt-[56.25%] h-0 relative"><iframe className="w-full h-full absolute top-0 left-0" src={`https://player.vimeo.com/video/${videoId}`} res={1} frameBorder="0" responsive={1} webkitallowfullscreen={1} mozallowfullscreen={1} allowFullScreen={1}></iframe></div>
       </div>
       :<></>}
+
+    {
+    isAdmin
+    ?<>
+    <form onSubmit={uploadVideo} className="flex my-2 w-full">
+      <button type="submit" className="p-2 rounded-l bg-blue-400 text-white font-bold">Upload</button>
+      <label htmlFor="video" className="flex-auto border-blue-400 border border-2 rounded-r p-2 text-blue-400 font-bold text-lg hover:cursor-pointer">select video <span className="mx-2 rounded bg-blue-400 text-white font-normal px-2">{file.replace(/.*[\/\\]/, '')}</span></label>
+      <input name="video" type="file" accept=".mp4" className="hidden" id="video" onChange={evt=>{setFile(evt.target.value);}} value={file}/>
+    </form>
+    {
+    uploadProgress>0
+    ?<div className="rounded border border-green-400 my-2 clip">
+      <div className="h-[10px] bg-green-400" style={{width: `${uploadProgress}%`}}></div>
+    </div>
+    :<></> }
+    </>
+    :<></>}
     <Description description={lecture.description} onDescriptionChanged={onDescriptionChanged}/>
     </main>
     <Footer />
