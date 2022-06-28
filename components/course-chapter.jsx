@@ -5,11 +5,17 @@ import Link from "next/link"
 import AnimateHeight from 'react-animate-height';
 import Divider from "./divider";
 import { v4 as uuidv4 } from 'uuid';
+import { useUserProfile } from "../utils/firebaseClient";
 
-function LectureEntry({lecture, isAdmin, onDelete = (lecture)=>{}}) {
+function LectureEntry({lecture, isAdmin, courseId, onDelete = (lecture)=>{}}) {
   const [titleEdit, setTitleEdit] = useState(false)
   const titleInput = useRef(null)
   const [title, setTitle] = useState(lecture.title)
+  const userProfile = useUserProfile()
+  const userCourses = userProfile?.courses??[]
+
+  const canView = userCourses.findIndex(c => c._id === courseId) != -1
+
   async function editLectureTitle(evt) {
     evt.preventDefault()
     setTitleEdit(!titleEdit)
@@ -44,8 +50,9 @@ function LectureEntry({lecture, isAdmin, onDelete = (lecture)=>{}}) {
     })
     .then(res => onDelete(lecture))
   }
+
   return (
-    <Link href={`/lecture/${lecture._id}`}>
+    <StateLink href={`/lecture/${lecture._id}`} disabled={!canView}>
       <a className="px-2 m-px w-full flex flex-row">
         {
           isAdmin
@@ -60,7 +67,7 @@ function LectureEntry({lecture, isAdmin, onDelete = (lecture)=>{}}) {
         {
           titleEdit
           ?<input onClick={(evt => evt.preventDefault())} onChange={(evt)=>setTitle(evt.target.value)} className="rounded outline-0 bg-slate-300 flex-auto text-left underline" ref={titleInput} value={title}></input>
-          :<h2 className="flex-auto text-left underline">{title}</h2>
+          :<h2 className="flex-auto text-left"><span className={canView?"underline":"text-slate-400"}>{title}</span></h2>
         }
         {
           isAdmin
@@ -73,7 +80,16 @@ function LectureEntry({lecture, isAdmin, onDelete = (lecture)=>{}}) {
           </button>
           :<></>}
       </a>
-    </Link>
+    </StateLink>
+  )
+}
+
+function StateLink({children, disabled, href})
+{
+  return (
+    disabled
+    ?<>{children}</>
+    :<Link href={href}>{children}</Link>
   )
 }
 
@@ -220,7 +236,7 @@ export default function CourseChapter({ chapter, isAdmin, courseId, isRoot=false
           <ul className="flex flex-col mb-2 border-l-2 border-slate-200">
           {
             lectures.map(lecture => <li key={lecture._id} className='flex-auto flex flex-row items-center'>
-              <div className="w-2 h-0.5 bg-slate-200"></div><LectureEntry lecture={lecture} isAdmin={isAdmin} onDelete={onSubLectureDelete}></LectureEntry>
+              <div className="w-2 h-0.5 bg-slate-200"></div><LectureEntry courseId={courseId} lecture={lecture} isAdmin={isAdmin} onDelete={onSubLectureDelete}></LectureEntry>
             </li>)
           }
           {
