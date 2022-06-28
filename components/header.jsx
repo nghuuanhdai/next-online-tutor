@@ -32,7 +32,11 @@ export default function Header() {
           ?<li><NavLink url={'/users'} text='Users'></NavLink></li>
           :<li></li>
         }
-        
+        {
+          isLogin
+          ?<li><NavLink url={'/profile'} text='Profile'></NavLink></li>
+          :<></>
+        }
         {
           isLogin
           ?<li><NavLinkBtn onClick={logout} text='Logout'></NavLinkBtn></li>
@@ -47,6 +51,11 @@ export default function Header() {
         {
           isAdmin
           ?<NavLink url={'/users'} text='Users'></NavLink>
+          :<></>
+        }
+        {
+          isLogin
+          ?<NavLink url={'/profile'} text='Profile'></NavLink>
           :<></>
         }
         {
