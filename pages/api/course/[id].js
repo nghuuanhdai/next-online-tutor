@@ -3,6 +3,7 @@ import { defaultCourseBanner } from '../../../utils/constant'
 import dbConnect from '../../../utils/dbConnect'
 import { serializeChapter } from './utils'
 import { loginCheck } from '../../../utils/firebaseAdmin'
+import Profile from '../../../models/profile'
 
 export default async function hanlder(req, res){
   if(req.method==='GET')
@@ -26,6 +27,10 @@ export default async function hanlder(req, res){
   } catch (error) {
     return res.status(401).send('FORBIDDEN')
   }
+  await dbConnect()
+  const profile = await Profile.findOne({email: req.decodedClaims.email})
+  if(!profile?.admin)
+    return res.status(401).send('FORBIDDEN')
   if(req.method === 'PUT')
   {
     const _id = req.query.id

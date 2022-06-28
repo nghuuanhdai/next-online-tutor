@@ -72,11 +72,6 @@ export default function UsersPage({})
     .catch(err => setNewUserErr(err.toString())) 
   }
 
-  function editUserSubmit() {
-
-  }
-
-  console.log(newUserErr)
   return (
     <>
     <MyHead />
@@ -104,7 +99,7 @@ export default function UsersPage({})
       <button type='submit' className='mt-6 flex-auto rounded bg-blue-400 p-2 text-white font-semibold'>Create</button>
     </form>
 
-    <form onSubmit={editUserSubmit} className='rounded-xl p-5 bg-white flex flex-col my-2'>
+    <form action='/user' method="get" className='rounded-xl p-5 bg-white flex flex-col my-2'>
       <h2 className='text-2xl font-semibold text-slate-400 mb-5'>Edit user account</h2>
       { editUserErr
         ?(<p className="drop-shadow-xl bg-red-400 text-white m-5 p-3 rounded-lg mt-5 max-w-xs mx-auto">{editUserErr}</p>)
