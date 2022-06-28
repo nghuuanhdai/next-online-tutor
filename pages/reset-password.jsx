@@ -1,10 +1,28 @@
 import MyHead from '../components/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { getApp } from '../utils/firebaseClient';
+import { useState } from 'react';
 export default function ResetPassword() {
-  const router = useRouter()
-  const { err, info } = router.query
+  const auth = getAuth(getApp())
+  const [ err, setErr] = useState(null)
+  const [ info, setInfo ] = useState(null)
+
+  function onResetPasswordFormSubmit(evt)
+  {
+    evt.preventDefault()
+    const formData = new FormData(evt.target)
+    sendPasswordResetEmail(auth, formData.get('email'))
+    .then(()=>{
+      setErr(null)
+      setInfo('Password reset email sent!')
+    })
+    .catch(err => {
+      setErr(err.message)
+      setErr(null)
+    })
+  }
 
   return (
     <div className="bg-gradient-to-t from-blue-400 to-indigo-300 h-screen flex items-center">
@@ -19,7 +37,7 @@ export default function ResetPassword() {
           ?(<p className="drop-shadow-xl bg-green-400 text-white m-5 p-3 rounded-lg mt-5 max-w-xs mx-auto">{info}</p>)
           :(<></>)
         }
-        <form action="/api/reset-password" method="post" className='drop-shadow-xl rounded-xl p-5 bg-white flex flex-col max-w-xs mx-auto'>
+        <form onSubmit={onResetPasswordFormSubmit} className='drop-shadow-xl rounded-xl p-5 bg-white flex flex-col max-w-xs mx-auto'>
           <h1 className='text-4xl font-bold flex-auto text-amber-400'><Link href='/'>Online Tutor</Link></h1>
           <h2 className='text-2xl font-semibold text-slate-400 mb-5'>Reset password</h2>
           <label htmlFor='email' className='flex-auto text-black/40 text-sm'>email</label>
