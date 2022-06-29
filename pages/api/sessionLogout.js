@@ -13,9 +13,9 @@ export default async function handler(req, res) {
   try {
       const decodedClaims = await auth.verifySessionCookie(sessionCookie)
       await auth.revokeRefreshTokens(decodedClaims.sub)
-      res.redirect('/login');
+      res.status(200).end();
   } catch (error) {
       console.log(error)
-      res.redirect('/login');
+      res.status(500).end();
   }
 }
