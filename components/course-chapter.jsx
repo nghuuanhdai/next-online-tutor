@@ -14,7 +14,7 @@ function LectureEntry({lecture, isAdmin, courseId, onDelete = (lecture)=>{}}) {
   const userProfile = useUserProfile()
   const userCourses = userProfile?.courses??[]
 
-  const canView = userCourses.findIndex(c => c._id === courseId) != -1
+  const canView = userCourses.findIndex(c => c._id === courseId) != -1 || userProfile?.admin
 
   async function editLectureTitle(evt) {
     evt.preventDefault()
