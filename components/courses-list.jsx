@@ -4,8 +4,7 @@ import CourseCard from "./course-card";
 import NewCourseCardButton from "./new-course-card";
 
 export default function CoursesList({ courses, title, adminOption = false }) {  
-  const [coursesVal, setCoursesVal] = useState([])
-  useEffect(()=>setCoursesVal(courses), [courses])
+  const [coursesVal, setCoursesVal] = useState(courses)
   const isAdmin = useUserProfile()?.admin
   
   async function createNewCourse(evt) {

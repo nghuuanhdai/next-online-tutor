@@ -13,7 +13,7 @@ export default function CourseCard({ course, adminOption = false, onCourseDelete
     const res = await fetch(courseInfoKey, {method: 'GET'})
     return await res.json()
   }
-  const {data, error } = useSWR (courseInfoKey, fetcher, { fallbackData: course })
+  const {data, error } = useSWR (courseInfoKey, fetcher, { fallbackData: course, revalidateOnMount: false })
   if(!error)
     course = data
   const isAdmin = useUserProfile()?.admin;
