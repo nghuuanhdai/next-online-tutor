@@ -30,7 +30,7 @@ export default function CoursesList({ courses, title, adminOption = false }) {
     <>
       <div className="mt-10"></div>
       <h2 className="font-sans text-2xl font-bold text-blue-500">{title}</h2>
-      <div className="grid sm:grid-cols-2 md:grid-cols-3">
+      <div className="grid grid-cols-[repeat(auto-fill,_minmax(20em,_1fr))]">
         {
           coursesVal.map(course => (<CourseCard key={course._id} course={course} adminOption={adminOption} onCourseDelete={deleteCourse(course)}></CourseCard>))
         }
