@@ -2,23 +2,6 @@ import { initializeApp } from "firebase/app";
 import { createUserWithEmailAndPassword, getAuth, getIdToken, inMemoryPersistence, setPersistence, signInWithEmailAndPassword } from "firebase/auth";
 import { createContext, useContext, useEffect, useState } from 'react'
 
-if(typeof window !== "undefined")
-{
-  if (!global.firebaseApp)
-  {
-    console.log('firebase init')
-    global.firebaseApp = initializeApp({
-      apiKey: process.env.NEXT_PUBLIC_FB_API_KEY,
-      authDomain: process.env.NEXT_PUBLIC_DB_AUTH_DOMAIN,
-      projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
-      storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
-      messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
-      appId: process.env.NEXT_PUBLIC_APP_ID,
-      measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID
-    })
-  }
-}
-
 function getCookie(cname) {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -135,4 +118,38 @@ export function UserContextWrapper({ children })
 export function useUserProfile()
 {
   return useContext(UserContext);
+}
+
+const FirebaseContext = createContext()
+export function FirebaseProvider({children})
+{
+  const [firebaseApp, setFirebaseApp] = useState(null)
+
+  useEffect(()=>{
+    if(typeof window !== "undefined")
+    {
+      if (!global.firebaseApp)
+      {
+        console.log('firebase init')
+        global.firebaseApp = initializeApp({
+          apiKey: process.env.NEXT_PUBLIC_FB_API_KEY,
+          authDomain: process.env.NEXT_PUBLIC_DB_AUTH_DOMAIN,
+          projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+          storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+          messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
+          appId: process.env.NEXT_PUBLIC_APP_ID,
+          measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID
+        })
+        setFirebaseApp(global.firebaseApp)
+      }
+    }
+  },[])
+
+  return (
+    <FirebaseContext.Provider value={firebaseApp}>{children}</FirebaseContext.Provider>
+  )
+}
+
+export function useFirebase() {
+  return useContext(FirebaseContext)
 }

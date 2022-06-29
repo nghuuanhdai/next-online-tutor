@@ -2,16 +2,22 @@ import MyHead from '../components/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
-import { getApp } from '../utils/firebaseClient';
+import { getApp, useFirebase } from '../utils/firebaseClient';
 import { useState } from 'react';
 export default function ResetPassword() {
-  const auth = getAuth(getApp())
+  const firebaseApp = useFirebase()
+  let auth = null
+  if(firebaseApp)
+    auth = getAuth(firebaseApp)
+
   const [ err, setErr] = useState(null)
   const [ info, setInfo ] = useState(null)
 
   function onResetPasswordFormSubmit(evt)
   {
     evt.preventDefault()
+    if(!auth)
+      return
     const formData = new FormData(evt.target)
     sendPasswordResetEmail(auth, formData.get('email'))
     .then(()=>{
