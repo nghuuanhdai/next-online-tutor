@@ -8,7 +8,7 @@
 </p>
 
 ## Demo
-### Live demo: https://nnhhaadd-online-tutor.herokuapp.com/
+### Live demo: [Online Tutor Heroku](https://nextjs-online-tutor.herokuapp.com/)
 Demo credential
   - **User account:** email: user@demo.com, password: i0sX3W$neb;P=xZn4(uB  
   - **Lecturer account:** email: admin@demo.com, password: yj8#eS2W(-XJ0*naw9}k  
@@ -16,7 +16,7 @@ Demo credential
 *These are dummy emails since this application doesn't provide email verification*
 
 ### Deploy it yourself
-  - **Clone this repo:** `git clone git@github.com:nghuuanhdai/online_tutor_ejs.git`
+  - **Clone this repo:** `git clone git@github.com:nghuuanhdai/next-online-tutor.git`
   - **Setup environment variable:** This application uses Firebase, MongoAtlas, VimeoSDK, and Cloudinary. To deploy the application yourself, make sure to populate all the environment variables in the following table.
 
 
