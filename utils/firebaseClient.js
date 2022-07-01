@@ -55,6 +55,7 @@ export async function logout() {
     window.location.assign('/')
   } catch (error) {
     await auth.signOut()
+    window.location.assign('/login?err='+ error)
     throw error
   }
 }
@@ -76,6 +77,7 @@ async function sessionLogin(auth) {
     body: JSON.stringify({idToken: idToken, csrftoken: csrftoken})
   })
   if (res.status !== 200){
+    window.location.assign('/login?err='+ encodeURIComponent(res.statusText))
     throw({code: res.status, message: res.text })
   }
   await auth.signOut()
