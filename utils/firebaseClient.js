@@ -32,7 +32,7 @@ export async function login(email, password) {
       const user = await signInWithEmailAndPassword(auth, email, password)
       await sessionLogin(auth)
     } catch (error) {
-      console.log(error)
+      window.location.assign('/login?err='+ error)
       await auth.signOut()
       throw error
     }    
@@ -55,7 +55,6 @@ export async function logout() {
     window.location.assign('/')
   } catch (error) {
     await auth.signOut()
-    window.location.assign('/login?err='+ error)
     throw error
   }
 }
