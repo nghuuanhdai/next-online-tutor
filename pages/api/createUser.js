@@ -21,6 +21,10 @@ export default async function handler(req, res)
       return res.status(401).end()
 
     const userEmail = req.body.email
+    let userProfile = await Profile.findOne({email: userEmail})
+    if(userProfile)
+      return res.status(500).send('User email already exist')
+
     const auth = getAuth(getAdminApp())
     const password = passwordGenerator.generate({
       length: 20,
@@ -32,9 +36,6 @@ export default async function handler(req, res)
       password: password,
       emailVerified: false
     })
-    let userProfile = await Profile.findOne({email: userEmail})
-    if(userProfile)
-      return res.status(500).end()
 
     userProfile = new Profile()
     userProfile.email = userEmail
